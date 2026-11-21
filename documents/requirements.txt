@@ -1,0 +1,8 @@
+VS code
+Jupyter Notebook
+Python
+Google colab
+github
+pandas
+numpy
+matplotlib
