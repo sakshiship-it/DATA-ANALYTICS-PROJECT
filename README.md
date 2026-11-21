@@ -314,4 +314,4 @@ This project is for educational and data-analysis purposes. The dataset and anal
 
 ## Author
 
-**Project Author:** *Add your name here*
+**Project Author:** *Sakshi Singh*
