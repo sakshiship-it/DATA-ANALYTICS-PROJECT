@@ -11,7 +11,7 @@ This project works with a hospital dataset to practice and perform:
 - Data cleaning and preprocessing
 - Feature creation (age groups, BMI categories, admission year/month)
 - Analysis of hospital admission patterns, patient indicators, and hospital stay duration
-- Visual presentation of findings through charts and a PowerPoint report
+- Visual presentation of findings through Matplotlib charts and a PowerPoint report
 
 The final cleaned dataset is saved as `cleaned_health_data.csv`.
 
@@ -31,11 +31,23 @@ Data Analytics Project/
 │   ├── draft1.ipynb                   # Initial dataset loading and file operations
 │   ├── draft2.ipynb                   # NumPy/Pandas exploration and analysis practice
 │   ├── final cleaning.ipynb            # Data cleaning, feature creation, summaries
+│   ├── 04_matplotlib_charts.ipynb      # Matplotlib charts for the four business questions
 │   ├── hospital.csv                   # Raw data copy used by notebooks
 │   └── clean hospital.csv              # Cleaned data copy used by notebooks
 │
 ├── images/
-│   └── charts/                          # Charts generated for analysis/presentation
+│   └── charts/                          # Chart images (PNG) created by 04_matplotlib_charts.ipynb
+│       ├── q1_stay_histogram.png
+│       ├── q1_stay_boxplot.png
+│       ├── q2_correlation.png
+│       ├── q2_medications_vs_stay.png
+│       ├── q2_age_vs_stay.png
+│       ├── q2_sugar_vs_stay.png
+│       ├── q3_stay_by_groups.png
+│       ├── q4_long_stay_count.png
+│       ├── q4_long_stay_rate.png
+│       ├── q4_long_stay_profile.png
+│       └── extra_patients_per_city.png
 │
 ├── documents/
 │   ├── SRS.doc / SRS.docx              # Software Requirements Specification
@@ -67,7 +79,7 @@ The notebooks may also contain copies of the raw and cleaned CSV files so they c
 - **Jupyter Notebook (`.ipynb`)**
 - **Pandas** — data loading, cleaning, filtering, grouping, and analysis
 - **NumPy** — numerical operations and conditional transformations
-- **Matplotlib** — chart generation (where used)
+- **Matplotlib** — all charts (histogram, box plot, bar, line and scatter charts)
 - **CSV** — dataset storage and exchange
 
 ## Notebooks
@@ -99,6 +111,16 @@ Performs the final cleaning/preparation workflow:
 9. Creates `Age_Group`, `BMI_Category`, `Admission_Year`, and `Admission_Month` features.
 10. Produces descriptive statistics, grouped hospital-stay summaries, category counts, and numeric correlations.
 11. Saves the prepared dataset to CSV.
+
+### `04_matplotlib_charts.ipynb` — Charts with Matplotlib
+Reads `cleaned_health_data.csv` and draws the charts that answer the four business questions:
+- **Question 1:** histogram (with mean and median lines) and box plot of `Hospital_Stay_Days`.
+- **Question 2:** correlation bar chart, average stay by number of medications, and scatter plots with trend lines for `Age` and `Fasting_Blood_Sugar`.
+- **Question 3:** four bar charts of average stay by `Admission_Type`, `City`, `Insurance_Type` and `Gender`.
+- **Question 4:** creates the `Long_Stay` column (10 or more days) and charts the Long Stay count, the Long Stay rate by age group and admission type, and the average age and medications of Long Stay patients.
+- **Extra:** number of patients per city.
+
+Every chart is saved as a PNG file in a `charts` folder, and the last cell downloads them all as `charts.zip` in Google Colab.
 
 ## Data Cleaning Details
 
@@ -162,6 +184,10 @@ clean["Hospital_Stay_Days"].mode()
 clean["Hospital_Stay_Days"].value_counts().sort_index()
 ```
 
+![Distribution of hospital stay](images/charts/q1_stay_histogram.png)
+
+![Hospital stay box plot](images/charts/q1_stay_boxplot.png)
+
 ### 2. Do `Age` and `Medications_Count` affect `Hospital_Stay_Days`? Does `Fasting_Blood_Sugar` matter as much?
 
 | Column | Correlation with stay | Pattern in the averages |
@@ -178,6 +204,14 @@ clean[cols + ["Hospital_Stay_Days"]].corr()["Hospital_Stay_Days"]
 clean.groupby("Medications_Count")["Hospital_Stay_Days"].mean().round(2)
 clean.groupby("Age_Group")["Hospital_Stay_Days"].mean().round(2)
 ```
+
+![Correlation with hospital stay](images/charts/q2_correlation.png)
+
+![Average stay by number of medications](images/charts/q2_medications_vs_stay.png)
+
+![Age vs hospital stay](images/charts/q2_age_vs_stay.png)
+
+![Fasting blood sugar vs hospital stay](images/charts/q2_sugar_vs_stay.png)
 
 ### 3. Does `Hospital_Stay_Days` differ by `Admission_Type`, `City`, `Insurance_Type` and `Gender`?
 
@@ -208,6 +242,8 @@ for col in ["Admission_Type", "City", "Insurance_Type", "Gender"]:
     print(clean.groupby(col)["Hospital_Stay_Days"].agg(["count", "mean"]).round(2))
 ```
 
+![Average stay by admission type, city, insurance type and gender](images/charts/q3_stay_by_groups.png)
+
 ### 4. Which records need attention? ("Long Stay" = 10 or more days)
 
 **How many:** 35 of 250 patients (14.0%) are Long Stay patients.
@@ -217,6 +253,10 @@ clean["Long_Stay"] = np.where(clean["Hospital_Stay_Days"] >= 10, "Long Stay", "N
 print(clean["Long_Stay"].value_counts())
 long_stay = clean[clean["Long_Stay"] == "Long Stay"]
 ```
+
+The `Long_Stay` column is created in `04_matplotlib_charts.ipynb`. Add the same line to `final cleaning.ipynb` if you want it saved in the cleaned file.
+
+![Long Stay vs Normal patients](images/charts/q4_long_stay_count.png)
 
 **What they have in common** (compared with the other 215 patients):
 
@@ -240,6 +280,10 @@ long_stay = clean[clean["Long_Stay"] == "Long Stay"]
 
 **Summary:** Records that need attention are typically older patients on several medicines who were admitted as Emergency or Referral cases. The 35 Long Stay patient IDs are:
 
+![Long Stay rate by age group and admission type](images/charts/q4_long_stay_rate.png)
+
+![Average age and medications of Long Stay patients](images/charts/q4_long_stay_profile.png)
+
 ```text
 P1167, P1171, P1077, P1205, P1013, P1172, P1140, P1154, P1151, P1221,
 P1186, P1086, P1149, P1119, P1069, P1073, P1183, P1085, P1076, P1201,
@@ -251,7 +295,21 @@ P1026, P1091, P1146, P1240, P1244
 
 ## Charts and Presentation
 
-Chart images are stored in the `images/` folder. They are used to communicate findings visually, including patient distributions and hospital admission/length-of-stay summaries.
+All charts are made with Matplotlib in `04_matplotlib_charts.ipynb` and saved as PNG images in `images/charts/`.
+
+| Chart file | Question | What it shows |
+|---|---|---|
+| `q1_stay_histogram.png` | 1 | Number of patients for each hospital stay length, with mean (6.86) and median (7) |
+| `q1_stay_boxplot.png` | 1 | Spread of stays: middle half is 5 to 9 days, range 1 to 12 |
+| `q2_correlation.png` | 2 | Correlation with stay: medications 0.51, age 0.40, fasting blood sugar 0.15 |
+| `q2_medications_vs_stay.png` | 2 | Average stay rises from 5.49 days (1 medicine) to 9.80 days (8 medicines) |
+| `q2_age_vs_stay.png` | 2 | Each patient as a dot, with a trend line: older patients stay longer |
+| `q2_sugar_vs_stay.png` | 2 | Each patient as a dot, with a flatter trend line: sugar has a weaker effect |
+| `q3_stay_by_groups.png` | 3 | Average stay by admission type, city, insurance type and gender |
+| `q4_long_stay_count.png` | 4 | 35 Long Stay patients against 215 Normal patients |
+| `q4_long_stay_rate.png` | 4 | Long Stay rate by age group (Seniors 35%) and admission type (Referral 22.5%) |
+| `q4_long_stay_profile.png` | 4 | Long Stay patients are older (57.3 vs 43.4) and take more medicines (4.4 vs 2.9) |
+| `extra_patients_per_city.png` | Extra | Number of patients in each city |
 
 The PowerPoint presentation and SRS document are stored in the `documents/` folder.
 
@@ -274,6 +332,8 @@ The PowerPoint presentation and SRS document are stored in the `documents/` fold
 5. Install the dependencies listed below.
 6. Open a notebook from `notebook/` and select the Python kernel.
 7. Make sure the CSV file path used in the notebook points to the correct file.
+
+For `04_matplotlib_charts.ipynb`, upload `cleaned_health_data.csv` (the output of `final cleaning.ipynb`), because the charts use columns such as `Age_Group` that are created during cleaning.
 
 Install the main packages:
 
@@ -303,7 +363,7 @@ The correct relative path depends on where the notebook is located and the actua
 - [x] Exploratory notebook work
 - [x] Data cleaning and preprocessing
 - [x] Cleaned dataset generated
-- [x] Charts prepared
+- [x] Charts prepared with Matplotlib (`04_matplotlib_charts.ipynb`, images in `images/charts/`)
 - [x] Project presentation prepared
 - [ ] Final review of paths and filenames
 - [ ] Add project-specific findings/limitations from the SRS
@@ -314,4 +374,4 @@ This project is for educational and data-analysis purposes. The dataset and anal
 
 ## Author
 
-**Project Author:** *Sakshi Singh*
+**Project Author:** *Add your name here*
